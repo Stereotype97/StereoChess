@@ -39,5 +39,8 @@ void UDPClient::readReady()
     }
     else {
         //parse turns
+        QStringList list = message.split(' ');
+        if (list.size() == 5)
+            emit sendTurn(list.at(1)[0], list.at(2).toInt(), list.at(3)[0], list.at(4).toInt());
     }
 }

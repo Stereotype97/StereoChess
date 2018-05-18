@@ -15,6 +15,7 @@ public slots:
 
 signals:
     void sendColor(QString color);
+    void sendTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
 
 private:
     QUdpSocket clientSocket;

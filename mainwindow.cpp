@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&game, &Game::highlightFigure, this, &MainWindow::highlightFigure);
 //    connect(&game, &Game::needUpdate, this, &MainWindow::updateTable);
     connect(&game, &Game::madeTurn, this, &MainWindow::getTurn);
+    connect(client, &UDPClient::sendTurn, this, &MainWindow::getOpponentTurn);
     connect(client, &UDPClient::sendColor, &game, &Game::getColor);
 
     names.insert(Figure::BOAT,    "Л");
@@ -60,7 +61,6 @@ void MainWindow::highlightFigure(QChar letter, int n, bool isTurnOn)
 {
     QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(letter) + QString("_") + QString::number(n));
-//    p->font().setBold(isTurnOn);
     QFont f = p->font();
     f.setBold(isTurnOn);
     p->setFont(f);
@@ -82,6 +82,19 @@ void MainWindow::getTurn(QChar fromLetter, int fromN, QChar whereLetter, int whe
     message.append(QString(fromLetter) + QString(" ") + QString::number(fromN) + QString(" "));
     message.append(QString(whereLetter) + QString(" ") + QString::number(whereN));
     client->WriteData(message);
+}
+
+void MainWindow::getOpponentTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN)
+{
+    QVector<QVector<Cell> > field = game.getField();
+    QString nameOfFigure = names[field[helpIndex[fromN - 1]][helpLetters.indexOf(fromLetter)].getChessFigure().getFigure()];//README
+
+    QPushButton *from = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
+                            + QString(fromLetter) + QString("_") + QString::number(fromN));
+    QPushButton *where = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
+                            + QString(whereLetter) + QString("_") + QString::number(whereN));
+    where->setText(nameOfFigure);
+    from->setText("");
 }
 
 void MainWindow::updateTable()

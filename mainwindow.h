@@ -24,6 +24,7 @@ private slots:
     void sendInfo();
     void highlightFigure(QChar letter, int n, bool isTurnOn);
     void getTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
+    void getOpponentTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
 private:
     Ui::MainWindow *ui;
     Game game;
