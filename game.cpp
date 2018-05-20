@@ -74,7 +74,7 @@ void Game::initField()
 
 void Game::processClick(QChar letter, int n)
 {
-//    qDebug() << letter << n;
+    qDebug() << letter << n;
     QPair<QChar, int> currClick = qMakePair(letter, n);
     if (!isFigureChosen) {
         if (getCell(letter, n).isCellEmpty()) return;

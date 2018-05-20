@@ -8,25 +8,14 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     client = new UDPClient();
-    QVector<QChar> temp = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-    int count = 0;
-    for (QChar l : temp) {
-        for (int i(1); i <= 8; i++) {
-            QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_") + l + QString("_") + QString::number(i));
-            connect(p, &QPushButton::clicked, this, &MainWindow::sendInfo);
-            if (count % 2 == 0) {
-                p->setStyleSheet("QPushButton { background-color: yellow }");
-            }
-            count++;
-        }
-        count++;
-    }
+
     connect(this, &MainWindow::sendCellToGame, &game, &Game::processClick);
     connect(&game, &Game::highlightFigure, this, &MainWindow::highlightFigure);
 //    connect(&game, &Game::needUpdate, this, &MainWindow::updateTable);
     connect(&game, &Game::madeTurn, this, &MainWindow::getTurn);
     connect(client, &UDPClient::sendTurn, this, &MainWindow::getOpponentTurn);
     connect(client, &UDPClient::sendColor, &game, &Game::getColor);
+    connect(client, &UDPClient::sendColor, this, &MainWindow::buildField);
 
     names.insert(Figure::BOAT,    "Л");
     names.insert(Figure::PAWN,    "П");
@@ -37,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     helpLetters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     helpIndex = {7, 6, 5, 4, 3, 2, 1, 0};
-    updateTable();
+
     client->WriteData(QString("I_AM_HERE"));
 }
 
@@ -95,6 +84,56 @@ void MainWindow::getOpponentTurn(QChar fromLetter, int fromN, QChar whereLetter,
                             + QString(whereLetter) + QString("_") + QString::number(whereN));
     where->setText(nameOfFigure);
     from->setText("");
+}
+
+void MainWindow::buildField(QString color)
+{
+    Side side;
+    if (color == "WHITE") side = Side::WHITE_SIDE;
+    else side = Side::BLACK_SIDE;
+
+    if (side == Side::BLACK_SIDE) {
+        //Replace buttons
+        int leftX = 130;
+        int leftY = 80;
+        QVector<QChar> temp = {'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'};
+        int shiftX(0), shiftY(0);
+        for (QChar l : temp) {
+            for (int i(1); i <= 8; i++) {
+                QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_") + l + QString("_") + QString::number(i));
+                p->setGeometry(leftX + shiftX, leftY + shiftY, 50, 50);
+                shiftY += 50;
+            }
+            shiftX += 50;
+            shiftY = 0;
+        }
+
+        //Rename labels
+        int i(1);
+        for (QChar letter : temp) {
+            QLabel *l = ui->centralWidget->findChild<QLabel *>(QString("l_") + QString::number(i++));
+            l->setText(QString(letter));
+        }
+
+        for (int i(1), j(8); i <= 8; i++, j--) {
+             QLabel *l = ui->centralWidget->findChild<QLabel *>(QString("n_") + QString::number(i));
+             l->setText(QString::number(j));
+        }
+    }
+
+    int count = static_cast<int>(side);
+    for (QChar l : helpLetters) {
+        for (int i(1); i <= 8; i++) {
+            QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_") + l + QString("_") + QString::number(i));
+            connect(p, &QPushButton::clicked, this, &MainWindow::sendInfo);
+            if (count % 2 == 0) {
+                p->setStyleSheet("QPushButton { background-color: yellow }");
+            }
+            count++;
+        }
+        count++;
+    }
+    updateTable();
 }
 
 void MainWindow::updateTable()

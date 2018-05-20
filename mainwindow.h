@@ -14,6 +14,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    enum class Side {WHITE_SIDE, BLACK_SIDE};
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -25,6 +26,7 @@ private slots:
     void highlightFigure(QChar letter, int n, bool isTurnOn);
     void getTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
     void getOpponentTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
+    void buildField(QString color);
 private:
     Ui::MainWindow *ui;
     Game game;
