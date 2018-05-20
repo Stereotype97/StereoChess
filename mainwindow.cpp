@@ -39,7 +39,7 @@ void MainWindow::sendInfo()
 {
     QObject *cell = sender();
     QString name = cell->objectName();
-//    client->WriteData(name);
+
     QStringList splittedString = name.split("_"); //pattern: "cell_l_n"
     QChar letter = splittedString.at(1).at(0);
     int n = splittedString.at(2).toInt();
@@ -58,7 +58,7 @@ void MainWindow::highlightFigure(QChar letter, int n, bool isTurnOn)
 void MainWindow::getTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN)
 {
     QVector<QVector<Cell> > field = game.getField();
-    QString nameOfFigure = names[field[helpIndex[whereN] + 1][helpLetters.indexOf(whereLetter)].getChessFigure().getFigure()];//README
+    QString nameOfFigure = names[field[helpIndex[whereN - 1]][helpLetters.indexOf(whereLetter)].getChessFigure().getFigure()];//README
 
     QPushButton *from = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(fromLetter) + QString("_") + QString::number(fromN));

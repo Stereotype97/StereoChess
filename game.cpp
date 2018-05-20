@@ -106,6 +106,7 @@ void Game::processClick(QChar letter, int n)
         }
         emit highlightFigure(currPos.first, currPos.second, false);
     }
+    qDebug() << "end of process click";
 
 }
 
@@ -131,8 +132,11 @@ Cell &Game::getCell(QChar letter, int n)
 
 void Game::turn(QChar fromLetter, int fromN, QChar whereLetter, int whereN)
 {
+    qDebug() << "turn start";
     getCell(whereLetter, whereN).setChessFigure(getCell(fromLetter, fromN).getChessFigure());
     getCell(fromLetter, fromN).setCellEmpty();
 //    emit needUpdate();
+    qDebug() << "made turn before";
     emit madeTurn(fromLetter, fromN, whereLetter, whereN);
+    qDebug() << "made turn after";
 }
