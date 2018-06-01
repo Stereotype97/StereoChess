@@ -7,8 +7,6 @@ ChessFigurePawn::ChessFigurePawn(Color col, Figure fig) : ChessFigure(fig, col)
 
 QVector<QPair<QChar, int> > ChessFigurePawn::getPossibleTurns(QVector<QVector<short> > field, QPair<QChar, int> currPos)
 {
-    qDebug() << field;
-    qDebug() << currPos;
     QVector<QPair<QChar, int> > turns;
     QPair<int, int> castCoord = getCastCoordFromNormal(currPos);
     qDebug() << castCoord;

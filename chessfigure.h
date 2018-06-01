@@ -2,6 +2,7 @@
 #define CHESSFIGURE_H
 #include <QVector>
 #include <QPair>
+#include <QDebug>
 
 enum class Figure {EMPTY, PAWN, KNIGHT, OFFICER, BOAT, QUEEN, KING};
 enum class Color {WHITE, BLACK};
