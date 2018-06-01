@@ -8,13 +8,13 @@ class Cell
 {
 public:
     Cell();
-    void setChessFigure(ChessFigure f);
-    ChessFigure getChessFigure() const;
+    void setChessFigure(ChessFigure *f);
+    ChessFigure *getChessFigure() const;
     bool isCellEmpty();
     void setCellEmpty();
 private:
     bool isEmpty;
-    ChessFigure figure;
+    ChessFigure *figure;
     //std::optional - qt lazy type
 //    bool QVariant::isNull() const
 //    bool QVariant::isValid() const

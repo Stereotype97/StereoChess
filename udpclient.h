@@ -20,7 +20,6 @@ signals:
 
 private:
     QUdpSocket clientSocket;
-
 };
 
 #endif // UDPCLIENT_H

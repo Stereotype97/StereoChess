@@ -32,10 +32,12 @@ public:
 signals:
     void sendCellToGame(QChar letter, int n);
     void sendTurnWithNameToView(QString name, QChar fromLetter, int fromN, QChar whereLetter, int whereN);
+//    void sendTurnWithFigureToGame(Figure figure, QChar fromLetter, int fromN, QChar whereLetter, int whereN);
 
 public slots:
     void processButtonNameFromView(QString buttonName);
     void getTurnWithFigureFromGame(Figure figure, QChar fromLetter, int fromN, QChar whereLetter, int whereN);
+//    void getTurnFromOpponent(QString name, QChar fromLetter, int fromN, QChar whereLetter, int whereN);
 
     void requestJoinToServer();
     void setConnectedState();

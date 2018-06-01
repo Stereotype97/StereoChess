@@ -4,3 +4,8 @@ ChessFigureOfficer::ChessFigureOfficer(Color col, Figure fig) : ChessFigure(fig,
 {
 
 }
+
+QVector<QPair<QChar, int> > ChessFigureOfficer::getPossibleTurns(QVector<QVector<short> > field, QPair<QChar, int> currPos)
+{
+
+}

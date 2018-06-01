@@ -18,6 +18,9 @@ ChessController::ChessController(View *view, Game *game, QObject *parent) : QObj
 
     connect(client, &UDPClient::sendConnectedState, this, &ChessController::setConnectedState);
     connect(client, &UDPClient::sendTurn, this->view, &View::showOpponentTurn);
+    connect(client, &UDPClient::sendTurn, this->game, &Game::setOpponentTurn);
+//    connect(this, &ChessController::sendTurnWithFigureToGame, this->game, &Game::setOpponentTurn);
+
     connect(client, &UDPClient::sendColor, this->game, &Game::getColor);
     connect(client, &UDPClient::sendColor, this->view, &View::buildField);
 
@@ -80,6 +83,12 @@ void ChessController::getTurnWithFigureFromGame(Figure figure, QChar fromLetter,
     message.append(QString(whereLetter) + QString(" ") + QString::number(whereN));
     client->WriteData(message);
 }
+
+//void ChessController::getTurnFromOpponent(QString name, QChar fromLetter, int fromN, QChar whereLetter, int whereN)
+//{
+//    Figure figure = names.key(name);
+//    emit sendTurnWithFigureToGame(figure, fromLetter, fromN, whereLetter, whereN);
+//}
 
 void ChessController::setConnectedState()
 {

@@ -26,11 +26,20 @@ signals:
 public slots:
     void processCellClick(QChar letter, int n);
     void getColor(QString color);
+    void setOpponentTurn(QString name, QChar fromLetter, int fromN, QChar whereLetter, int whereN);
 private:
     void initField();
     Cell &getCell(QChar letter, int n);
     void turn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
+    QVector<QVector<short> > simplification();
 
+    template <typename T>
+    void rotateField(QVector<QVector<T> >& field_) {
+        std::reverse(field_.begin(), field_.end());
+        for (int i(0); i < field_.size(); i++) {
+            std::reverse(field_[i].begin(), field_[i].end());
+        }
+    }
 
     QVector<int> correctIndex;
     QVector<QChar> helpLetters;
@@ -38,6 +47,7 @@ private:
     bool isFigureChosen;
     QPair<QChar, int> currPos;
     Color myColor;
+    QVector<QPair<QChar, int> > possibleTurns;
 };
 
 #endif // GAME_H
