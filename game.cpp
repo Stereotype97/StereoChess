@@ -72,7 +72,7 @@ void Game::initField()
     getCell(QChar('h'), 7).setChessFigure(ChessFigurePawn(Color::BLACK));
 }
 
-void Game::processClick(QChar letter, int n)
+void Game::processCellClick(QChar letter, int n) //logic
 {
     qDebug() << letter << n;
     QPair<QChar, int> currClick = qMakePair(letter, n);
@@ -93,7 +93,7 @@ void Game::processClick(QChar letter, int n)
         }
         else if (getCell(letter, n).isCellEmpty()) {
             isFigureChosen = false;
-             turn(currPos.first, currPos.second, letter, n);
+            turn(currPos.first, currPos.second, letter, n);
         }
         else if (getCell(letter, n).getChessFigure().getColor() == myColor) {
             emit highlightFigure(currClick.first, currClick.second, true);
@@ -133,10 +133,9 @@ Cell &Game::getCell(QChar letter, int n)
 void Game::turn(QChar fromLetter, int fromN, QChar whereLetter, int whereN)
 {
     qDebug() << "turn start";
+    Figure figure = getCell(fromLetter, fromN).getChessFigure().getFigure();
     getCell(whereLetter, whereN).setChessFigure(getCell(fromLetter, fromN).getChessFigure());
     getCell(fromLetter, fromN).setCellEmpty();
 //    emit needUpdate();
-    qDebug() << "made turn before";
-    emit madeTurn(fromLetter, fromN, whereLetter, whereN);
-    qDebug() << "made turn after";
+    emit madeTurn(figure, fromLetter, fromN, whereLetter, whereN);
 }

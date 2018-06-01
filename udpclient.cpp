@@ -12,16 +12,14 @@ void UDPClient::WriteData(const QString& data)
 {
     QByteArray clientData;
     clientData.append(data);
-    // write to the port, listening by the server.
-//    qDebug()<<"Writing datagram to 9999 port";
-    clientSocket.writeDatagram(clientData, QHostAddress::LocalHost, 9999 );
 
+    clientSocket.writeDatagram(clientData, QHostAddress::LocalHost, 9999 );
 }
 
 void UDPClient::readReady()
 {
     // got response from server, so clientSoclet port number can get.
-    qDebug()<< "Reacieved response from server through my port(Client port No):" << clientSocket.localPort();
+    //qDebug()<< "Reacieved response from server through my port(Client port No):" << clientSocket.localPort();
 
     QByteArray buffer;
     buffer.resize(clientSocket.pendingDatagramSize());
@@ -37,10 +35,13 @@ void UDPClient::readReady()
         QStringList list = message.split(' ');
         emit sendColor(list.at(1));
     }
+    else if (message == QString("CONNECTED")) {
+        emit sendConnectedState();
+    }
     else {
         //parse turns
         QStringList list = message.split(' ');
         if (list.size() == 5)
-            emit sendTurn(list.at(1)[0], list.at(2).toInt(), list.at(3)[0], list.at(4).toInt());
+            emit sendTurn(list.at(0), list.at(1)[0], list.at(2).toInt(), list.at(3)[0], list.at(4).toInt());
     }
 }

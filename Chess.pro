@@ -25,7 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
     game.cpp \
     cell.cpp \
     udpclient.cpp \
@@ -35,10 +34,11 @@ SOURCES += \
     chessfigureknight.cpp \
     chessfigureofficer.cpp \
     chessfigurequeen.cpp \
-    chessfigureking.cpp
+    chessfigureking.cpp \
+    chesscontroller.cpp \
+    view.cpp
 
 HEADERS += \
-        mainwindow.h \
     game.h \
     cell.h \
     udpclient.h \
@@ -48,7 +48,9 @@ HEADERS += \
     chessfigureknight.h \
     chessfigureofficer.h \
     chessfigurequeen.h \
-    chessfigureking.h
+    chessfigureking.h \
+    chesscontroller.h \
+    view.h
 
 FORMS += \
-        mainwindow.ui
+    view.ui

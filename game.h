@@ -22,9 +22,9 @@ public:
 signals:
     void highlightFigure(QChar letter, int n, bool isTurnOn);
 //    void needUpdate();
-    void madeTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN);
+    void madeTurn(Figure figure, QChar fromLetter, int fromN, QChar whereLetter, int whereN);
 public slots:
-    void processClick(QChar letter, int n);
+    void processCellClick(QChar letter, int n);
     void getColor(QString color);
 private:
     void initField();

@@ -1,52 +1,34 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "view.h"
+#include "ui_view.h"
 #include <QPushButton>
+#include <QDebug>
 
-MainWindow::MainWindow(QWidget *parent) :
+View::View(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::View)
 {
     ui->setupUi(this);
-    client = new UDPClient();
-
-    connect(this, &MainWindow::sendCellToGame, &game, &Game::processClick);
-    connect(&game, &Game::highlightFigure, this, &MainWindow::highlightFigure);
-//    connect(&game, &Game::needUpdate, this, &MainWindow::updateTable);
-    connect(&game, &Game::madeTurn, this, &MainWindow::getTurn);
-    connect(client, &UDPClient::sendTurn, this, &MainWindow::getOpponentTurn);
-    connect(client, &UDPClient::sendColor, &game, &Game::getColor);
-    connect(client, &UDPClient::sendColor, this, &MainWindow::buildField);
-
-    names.insert(Figure::BOAT,    "Л");
-    names.insert(Figure::PAWN,    "П");
-    names.insert(Figure::KNIGHT,  "К");
-    names.insert(Figure::OFFICER, "С");
-    names.insert(Figure::QUEEN,   "Ко");
-    names.insert(Figure::KING,    "Кр");
 
     helpLetters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     helpIndex = {7, 6, 5, 4, 3, 2, 1, 0};
 
-    client->WriteData(QString("I_AM_HERE"));
+    setVisibleField(false);
+
+    connect(ui->play, &QPushButton::clicked, this, &View::readyToPlay);
 }
 
-MainWindow::~MainWindow()
+View::~View()
 {
     delete ui;
 }
 
-void MainWindow::sendInfo()
+void View::sendInfo()
 {
     QObject *cell = sender();
-    QString name = cell->objectName();
-
-    QStringList splittedString = name.split("_"); //pattern: "cell_l_n"
-    QChar letter = splittedString.at(1).at(0);
-    int n = splittedString.at(2).toInt();
-    emit sendCellToGame(letter, n);
+    emit sendButtonNameToController(cell->objectName());
 }
 
-void MainWindow::highlightFigure(QChar letter, int n, bool isTurnOn)
+void View::highlightFigure(QChar letter, int n, bool isTurnOn)
 {
     QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(letter) + QString("_") + QString::number(n));
@@ -55,39 +37,29 @@ void MainWindow::highlightFigure(QChar letter, int n, bool isTurnOn)
     p->setFont(f);
 }
 
-void MainWindow::getTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN)
+void View::getTurnFromController(QString name, QChar fromLetter, int fromN, QChar whereLetter, int whereN)//добавить имя в параметры
 {
-    QVector<QVector<Cell> > field = game.getField();
-    QString nameOfFigure = names[field[helpIndex[whereN - 1]][helpLetters.indexOf(whereLetter)].getChessFigure().getFigure()];//README
-
     QPushButton *from = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(fromLetter) + QString("_") + QString::number(fromN));
     QPushButton *where = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(whereLetter) + QString("_") + QString::number(whereN));
-    where->setText(nameOfFigure);
+    where->setText(name);
     from->setText("");
-
-    QString message = nameOfFigure + QString(" ");
-    message.append(QString(fromLetter) + QString(" ") + QString::number(fromN) + QString(" "));
-    message.append(QString(whereLetter) + QString(" ") + QString::number(whereN));
-    client->WriteData(message);
 }
 
-void MainWindow::getOpponentTurn(QChar fromLetter, int fromN, QChar whereLetter, int whereN)
+void View::showOpponentTurn(QString name, QChar fromLetter, int fromN, QChar whereLetter, int whereN)
 {
-    QVector<QVector<Cell> > field = game.getField();
-    QString nameOfFigure = names[field[helpIndex[fromN - 1]][helpLetters.indexOf(fromLetter)].getChessFigure().getFigure()];//README
-
     QPushButton *from = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(fromLetter) + QString("_") + QString::number(fromN));
     QPushButton *where = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                             + QString(whereLetter) + QString("_") + QString::number(whereN));
-    where->setText(nameOfFigure);
+    where->setText(name);
     from->setText("");
 }
 
-void MainWindow::buildField(QString color)
+void View::buildField(QString color)
 {
+    qDebug() << "build field";
     Side side;
     if (color == "WHITE") side = Side::WHITE_SIDE;
     else side = Side::BLACK_SIDE;
@@ -125,7 +97,7 @@ void MainWindow::buildField(QString color)
     for (QChar l : helpLetters) {
         for (int i(1); i <= 8; i++) {
             QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_") + l + QString("_") + QString::number(i));
-            connect(p, &QPushButton::clicked, this, &MainWindow::sendInfo);
+            connect(p, &QPushButton::clicked, this, &View::sendInfo);
             if (count % 2 == 0) {
                 p->setStyleSheet("QPushButton { background-color: yellow }");
             }
@@ -133,20 +105,61 @@ void MainWindow::buildField(QString color)
         }
         count++;
     }
-    updateTable();
+    updateTable(getInitialField());
+    showField();
 }
 
-void MainWindow::updateTable()
+void View::showField()
 {
-    QVector<QVector<Cell> > field = game.getField();
+    ui->play->setVisible(false);
+    setVisibleField(true);
+}
+
+QVector<QVector<QString > > View::getInitialField()
+{
+    QVector<QVector<QString > > field;
+    QVector<QString> pawns(8, "П");
+    QVector<QString> empty(8, "");
+
+    //enemy figures
+    field.push_back({"Л", "К", "О", "Ко", "Кр", "О", "К", "Л"});
+    field.push_back(pawns);
+    for (int i(0); i < 4; i++) {
+        field.push_back(empty);
+    }
+    field.push_back(pawns);
+    field.push_back({"Л", "К", "О", "Ко", "Кр", "О", "К", "Л"});
+
+    return field;
+}
+
+void View::updateTable(QVector<QVector<QString> > field)
+{
     for (int i(0); i < field.size(); i++) {
         for (int j(0); j < field[0].size(); j++) {
             QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_")
                                     + helpLetters[j] + QString("_") + QString::number(helpIndex.indexOf(i) + 1));
-            if (!field[i][j].isCellEmpty()) {
-                p->setText(names[field[i][j].getChessFigure().getFigure()]);
-            }
-            else p->setText("");
+            p->setText(field[i][j]);
         }
+    }
+}
+
+void View::setVisibleField(bool isNeedShow)
+{
+    for (QChar l : helpLetters) {
+        for (int i(1); i <= 8; i++) {
+            QPushButton *p = ui->centralWidget->findChild<QPushButton *>(QString("cell_") + l + QString("_") + QString::number(i));
+            p->setVisible(isNeedShow);
+        }
+    }
+
+    for (int i(1); i <= 8; i++) {
+        QLabel *l = ui->centralWidget->findChild<QLabel *>(QString("l_") + QString::number(i));
+        l->setVisible(isNeedShow);
+    }
+
+    for (int i(1), j(8); i <= 8; i++, j--) {
+         QLabel *l = ui->centralWidget->findChild<QLabel *>(QString("n_") + QString::number(i));
+         l->setVisible(isNeedShow);
     }
 }
